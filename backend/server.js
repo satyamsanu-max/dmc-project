@@ -9,10 +9,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ─── 1. SERVE FRONTEND STATIC FILES (CRITICAL FOR DEPLOYMENT) ──────────────
-// This tells Express where your React "build" folder is.
-// On Render, we usually put 'frontend' and 'backend' in the same root.
-app.use(express.static(path.join(__dirname, "../frontend/build")));
+// ─── 1. DYNAMIC STATIC FILE SERVING ──────────────────────────────────────────
+// This version checks both possible locations for the 'build' folder
+const frontendBuildPath = path.join(__dirname, "../frontend/build");
+const rootBuildPath = path.join(__dirname, "frontend/build");
+
+if (fs.existsSync(frontendBuildPath)) {
+    app.use(express.static(frontendBuildPath));
+} else {
+    app.use(express.static(rootBuildPath));
+}
 
 // ─── FILE DATABASE CONFIGURATION ─────────────────────────────────────────────
 const DB_FILE = path.join(__dirname, "database.json");
@@ -38,10 +44,8 @@ const loadDB = () => {
 
 const saveDB = (data) => fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 
-// Initial Load
-let db = loadDB();
-
 // ─── AI CONFIGURATION ────────────────────────────────────────────────────────
+// Use the Environment Variable set in Render Settings
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -56,7 +60,7 @@ app.get("/api/complaints", (req, res) => {
 app.post("/api/complaints", (req, res) => {
   const currentDB = loadDB();
   
-  // ─── 2. DYNAMIC ID GENERATION (FIXES THE "SAME ID" ISSUE) ──────────────────
+  // Create a unique ID to avoid overwriting
   const newID = `DMC-${Math.floor(100000 + Math.random() * 900000)}`;
   
   const newComplaint = { 
@@ -88,7 +92,7 @@ app.post("/api/login", (req, res) => {
   }
 });
 
-// ─── AI ROUTES ───────────────────────────────────────────────────────────────
+// ─── AI CLASSIFICATION ROUTE ────────────────────────────────────────────────
 app.post("/api/ai/classify", async (req, res) => {
   try {
     const { title, description } = req.body;
@@ -97,14 +101,19 @@ app.post("/api/ai/classify", async (req, res) => {
     const text = result.response.text().replace(/```json|```/g, "").trim();
     res.json(JSON.parse(text));
   } catch (err) {
-    res.status(500).json({ error: "AI failed" });
+    console.error("AI Error:", err);
+    res.status(500).json({ error: "AI failed to classify" });
   }
 });
 
-// ─── 3. THE "CATCH-ALL" ROUTE (CRITICAL FOR REACT ROUTING) ──────────────────
-// This must be the VERY LAST route. It sends index.html for any non-API request.
+// ─── 2. THE CATCH-ALL ROUTE (CRITICAL) ──────────────────────────────────────
+// This serves the index.html for any request that isn't an API call.
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+  const finalIndexPath = fs.existsSync(frontendBuildPath) 
+    ? path.join(frontendBuildPath, "index.html")
+    : path.join(rootBuildPath, "index.html");
+  
+  res.sendFile(finalIndexPath);
 });
 
 const PORT = process.env.PORT || 3001;
