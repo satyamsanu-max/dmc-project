@@ -1,0 +1,159 @@
+{
+  "complaints": [
+    {
+      "id": "DMC-292510",
+      "title": "water leakage",
+      "desc": "in my area water is leaking all over the road and is impossible to walk on road water is splited all over",
+      "zone": "Central Delhi",
+      "status": "Submitted",
+      "citizenId": "CIT-72696",
+      "citizenName": "satyam",
+      "citizenPhone": "8434491728",
+      "citizenEmail": "satyam_2401es07@iitp.ac.in",
+      "aiConfidence": 95,
+      "timeline": [
+        {
+          "s": "Submitted",
+          "t": "28 Mar, 04:11 am",
+          "by": "satyam",
+          "note": ""
+        }
+      ],
+      "createdAt": "28 Mar, 04:11 am",
+      "updatedAt": "28 Mar, 04:11 am"
+    },
+    {
+      "id": "DMC-791589",
+      "title": "roads BROKEN",
+      "desc": "road is broken in front of my house ",
+      "dept": "Roads & Infrastructure",
+      "zone": "Central Delhi",
+      "priority": "High",
+      "status": "Submitted",
+      "citizenId": "CIT-30304",
+      "citizenName": "satyam",
+      "citizenPhone": "8434491728",
+      "citizenEmail": "sanusatyam500@gmail.com",
+      "aiConfidence": 87,
+      "timeline": [
+        {
+          "s": "Submitted",
+          "t": "28 Mar, 03:29 am",
+          "by": "satyam",
+          "note": ""
+        }
+      ],
+      "createdAt": "28 Mar, 03:29 am",
+      "updatedAt": "28 Mar, 03:29 am"
+    },
+    {
+      "id": "DMC-001",
+      "title": "Overflowing garbage bins near Lajpat Nagar Market",
+      "desc": "Three large municipal bins have been overflowing for 5 days. Waste spilling onto the footpath causing health hazard and foul odour.",
+      "dept": "Sanitation & Solid Waste",
+      "zone": "South Delhi",
+      "priority": "High",
+      "status": "In Progress",
+      "citizenId": "CIT-001",
+      "citizenName": "Vikram Mehra",
+      "citizenPhone": "9876543210",
+      "citizenEmail": "citizen@delhi.gov.in",
+      "createdAt": "25 Mar, 10:30 AM",
+      "updatedAt": "26 Mar, 02:15 PM",
+      "aiConfidence": 96,
+      "timeline": [
+        {
+          "s": "Submitted",
+          "t": "25 Mar, 10:30 AM",
+          "by": "Vikram Mehra",
+          "note": ""
+        },
+        {
+          "s": "Under Review",
+          "t": "25 Mar, 12:00 PM",
+          "by": "Admin",
+          "note": ""
+        },
+        {
+          "s": "Assigned",
+          "t": "25 Mar, 04:00 PM",
+          "by": "Admin",
+          "note": "Assigned to Ward Officer Sharma"
+        },
+        {
+          "s": "In Progress",
+          "t": "26 Mar, 09:00 AM",
+          "by": "Admin",
+          "note": "Sanitation team dispatched"
+        }
+      ]
+    },
+    {
+      "id": "DMC-002",
+      "title": "Large pothole on Outer Ring Road causing accidents",
+      "desc": "A 3-foot wide pothole has developed near the Mukundpur flyover junction. Two two-wheelers have already skidded. Urgent repair needed.",
+      "dept": "Roads & Infrastructure",
+      "zone": "North-West Delhi",
+      "priority": "Critical",
+      "status": "Assigned",
+      "citizenId": "CIT-002",
+      "citizenName": "Priya Sharma",
+      "citizenPhone": "9812345678",
+      "citizenEmail": "priya@gmail.com",
+      "createdAt": "26 Mar, 08:45 AM",
+      "updatedAt": "26 Mar, 11:00 AM",
+      "aiConfidence": 98,
+      "timeline": [
+        {
+          "s": "Submitted",
+          "t": "26 Mar, 08:45 AM",
+          "by": "Priya Sharma",
+          "note": ""
+        },
+        {
+          "s": "Under Review",
+          "t": "26 Mar, 09:30 AM",
+          "by": "Admin",
+          "note": ""
+        },
+        {
+          "s": "Assigned",
+          "t": "26 Mar, 11:00 AM",
+          "by": "Admin",
+          "note": "Road maintenance team alerted. Priority repair scheduled."
+        }
+      ]
+    },
+    {
+      "id": "DMC-004",
+      "title": "No water supply in DDA Flats, Dwarka Sector 10",
+      "desc": "Water supply has been completely cut off for 3 days. Over 200 families are affected.",
+      "dept": "Water Supply & Drainage",
+      "zone": "West Delhi",
+      "priority": "Critical",
+      "status": "Resolved",
+      "citizenId": "CIT-004",
+      "citizenName": "Sunita Nair",
+      "citizenPhone": "9871234560",
+      "citizenEmail": "sunita.nair@gmail.com",
+      "createdAt": "23 Mar, 07:00 AM",
+      "updatedAt": "25 Mar, 06:00 PM",
+      "aiConfidence": 97,
+      "timeline": [
+        {
+          "s": "Submitted",
+          "t": "23 Mar, 07:00 AM",
+          "by": "Sunita Nair",
+          "note": ""
+        },
+        {
+          "s": "Resolved",
+          "t": "25 Mar, 06:00 PM",
+          "by": "Admin",
+          "note": "Pipeline repaired. Supply restored."
+        }
+      ]
+    }
+  ],
+  "users": []
+}
