@@ -6,19 +6,14 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 require('dotenv').config();
 
 const app = express();
+
+// ─── MIDDLEWARE ─────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 
-// ─── 1. DYNAMIC STATIC FILE SERVING ──────────────────────────────────────────
-// This version checks both possible locations for the 'build' folder
-const frontendBuildPath = path.join(__dirname, "../frontend/build");
-const rootBuildPath = path.join(__dirname, "frontend/build");
-
-if (fs.existsSync(frontendBuildPath)) {
-    app.use(express.static(frontendBuildPath));
-} else {
-    app.use(express.static(rootBuildPath));
-}
+// ─── 1. SERVE FRONTEND STATIC FILES (CRITICAL FOR RENDER) ──────────────────
+// This ensures the backend hosts your React build folder
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // ─── FILE DATABASE CONFIGURATION ─────────────────────────────────────────────
 const DB_FILE = path.join(__dirname, "database.json");
@@ -36,7 +31,8 @@ const loadDB = () => {
     return SEED;
   }
   try {
-    return JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
+    const data = JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
+    return data.complaints ? data : SEED;
   } catch (e) {
     return SEED;
   }
@@ -44,23 +40,45 @@ const loadDB = () => {
 
 const saveDB = (data) => fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 
+const nowStr = () => new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
+
 // ─── AI CONFIGURATION ────────────────────────────────────────────────────────
-// Use the Environment Variable set in Render Settings
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-const nowStr = () => new Date().toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
+// ─── USER & LOGIN ROUTES ─────────────────────────────────────────────────────
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
+  const db = loadDB();
+  const user = db.users.find(u => u.email === email && u.password === password);
+
+  if (user) {
+    res.json({ id: user.id, name: user.name, email: user.email, role: "citizen" });
+  } else if (email === "admin@delhi.gov.in" && password === "Admin@123") {
+    res.json({ id: "ADM-001", name: "System Admin", email, role: "admin" });
+  } else {
+    res.status(401).json({ error: "Invalid credentials" });
+  }
+});
+
+app.post("/api/users", (req, res) => {
+  const db = loadDB();
+  const newUser = { ...req.body, id: `CIT-${Date.now()}` };
+  db.users.push(newUser);
+  saveDB(db);
+  res.status(201).json(newUser);
+});
 
 // ─── COMPLAINT ROUTES ────────────────────────────────────────────────────────
 app.get("/api/complaints", (req, res) => {
-  const currentDB = loadDB();
-  res.json(currentDB.complaints);
+  const db = loadDB();
+  res.json(db.complaints);
 });
 
 app.post("/api/complaints", (req, res) => {
-  const currentDB = loadDB();
+  const db = loadDB();
   
-  // Create a unique ID to avoid overwriting
+  // ─── DYNAMIC ID GENERATION ───
   const newID = `DMC-${Math.floor(100000 + Math.random() * 900000)}`;
   
   const newComplaint = { 
@@ -72,24 +90,9 @@ app.post("/api/complaints", (req, res) => {
     timeline: [{ s: "Submitted", t: nowStr(), by: req.body.citizenName || "User", note: "" }]
   };
 
-  currentDB.complaints.unshift(newComplaint);
-  saveDB(currentDB);
+  db.complaints.unshift(newComplaint);
+  saveDB(db);
   res.status(201).json(newComplaint);
-});
-
-// ─── USER & LOGIN ROUTES ─────────────────────────────────────────────────────
-app.post("/api/login", (req, res) => {
-  const { email, password } = req.body;
-  const currentDB = loadDB();
-  const user = currentDB.users.find(u => u.email === email && u.password === password);
-
-  if (user) {
-    res.json({ id: user.id, name: user.name, email: user.email, role: "citizen" });
-  } else if (email === "admin@delhi.gov.in" && password === "Admin@123") {
-    res.json({ id: "ADM-001", name: "System Admin", email, role: "admin" });
-  } else {
-    res.status(401).json({ error: "Invalid credentials" });
-  }
 });
 
 // ─── AI CLASSIFICATION ROUTE ────────────────────────────────────────────────
@@ -101,19 +104,14 @@ app.post("/api/ai/classify", async (req, res) => {
     const text = result.response.text().replace(/```json|```/g, "").trim();
     res.json(JSON.parse(text));
   } catch (err) {
-    console.error("AI Error:", err);
-    res.status(500).json({ error: "AI failed to classify" });
+    res.status(500).json({ error: "AI failed" });
   }
 });
 
 // ─── 2. THE CATCH-ALL ROUTE (CRITICAL) ──────────────────────────────────────
-// This serves the index.html for any request that isn't an API call.
+// This handles React routing so page refreshes don't break the app
 app.get("*", (req, res) => {
-  const finalIndexPath = fs.existsSync(frontendBuildPath) 
-    ? path.join(frontendBuildPath, "index.html")
-    : path.join(rootBuildPath, "index.html");
-  
-  res.sendFile(finalIndexPath);
+  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
 
 const PORT = process.env.PORT || 3001;
