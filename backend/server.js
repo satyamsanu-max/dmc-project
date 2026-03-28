@@ -110,10 +110,13 @@ app.post("/api/ai/classify", async (req, res) => {
 
 // ─── 2. THE CATCH-ALL ROUTE (CRITICAL) ──────────────────────────────────────
 // This handles React routing so page refreshes don't break the app
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+app.get("/*", (req, res) => {
+  const finalIndexPath = fs.existsSync(frontendBuildPath) 
+    ? path.join(frontendBuildPath, "index.html")
+    : path.join(rootBuildPath, "index.html");
+  
+  res.sendFile(finalIndexPath);
 });
-
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Server live on port ${PORT}`);
